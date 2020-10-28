@@ -18,6 +18,8 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 // app.use('/uploads', path.join(__dirname, 'public/uploads'))
 
+app.get('/favicon.ico', (_req, res) => res.status(200).send('OK'))
+
 app.use('/api', require('./api'))
 
 app.use(require('./middlewares/notFound'))
