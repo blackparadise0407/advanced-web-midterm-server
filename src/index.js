@@ -24,4 +24,4 @@ app.use(require('./middlewares/notFound'))
 app.use(require('./middlewares/errorHandler'))
 
 const PORT = process.env.PORT || 5000
-app.listen(PORT, () => console.log(`App is listening on port${PORT}`))
+app.listen(PORT, () => console.log(`App is listening on port ${PORT}`))
