@@ -1,41 +1,57 @@
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const { forEach, includes } = require("lodash");
 
 const genToken = (payload = {}) => {
-  const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: 60 * 60 * 2 }) // exprires in 2 hours
+  const token = jwt.sign(payload, process.env.JWT_KEY, {
+    expiresIn: 60 * 60 * 2,
+  }); // exprires in 2 hours
   return {
     token,
-    expiresIn: 60 * 60 * 2
-  }
-}
+    expiresIn: 60 * 60 * 2,
+  };
+};
 
-const verifyToken = (token = '') => {
-  const decoded = jwt.verify(token, process.env.JWT_KEY)
-  return decoded
-}
-
-const genHashed = async (str = '') => {
+const verifyToken = (token = "") => {
   try {
-    const salt = await bcrypt.genSalt(10)
-    const hashed = await bcrypt.hash(str, salt)
-    return hashed
-  } catch (error) {
-    throw error
+    const decoded = jwt.verify(token, process.env.JWT_KEY);
+    return decoded;
+  } catch (err) {
+    throw err;
   }
-}
+};
 
-const compareHashed = async (str = '', hashed = '') => {
+const genHashed = async (str = "") => {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(str, salt);
+    return hashed;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const compareHashed = async (str = "", hashed = "") => {
   try {
     const valid = await bcrypt.compare(str, hashed);
-    return valid
+    return valid;
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
+
+const filterParams = (obj = {}, omit = []) => {
+  return forEach(obj, (_val, key) => {
+    if (includes(omit, key)) {
+      delete obj[key];
+    }
+  });
+};
 
 module.exports = {
   genToken,
   verifyToken,
   genHashed,
-  compareHashed
-}
+  compareHashed,
+  filterParams,
+};
