@@ -7,7 +7,7 @@ const genToken = (payload = {}) => {
     expiresIn: 60 * 60 * 2,
   }); // exprires in 2 hours
   return {
-    token,
+    token: 'Bearer ' + token,
     expiresIn: 60 * 60 * 2,
   };
 };

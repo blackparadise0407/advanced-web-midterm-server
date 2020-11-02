@@ -1,10 +1,17 @@
+const userModel = require("../user/user.model");
 const User = require("../user/user.model");
 const utils = require("../utils");
 const { registerValSchem, loginValSchem } = require("../validation");
 
-const test = (req, res, next) => {
-  console.log(utils.filterParams(req.body, ["haha"]));
-};
+const auth = async (req, res, next) => {
+  try {
+    const user = await userModel.findById(req.user._id).select('-password')
+    if (!user) throw res.status(404).json({ message: "User does not exists" });
+    return res.status(200).json({ message: "Load user success", data: user });
+  } catch (error) {
+    next(error);
+  }
+}
 
 const login = async ({ body }, res, next) => {
   const { email, password } = body;
@@ -53,5 +60,5 @@ const regsiter = async ({ body }, res, next) => {
 module.exports = {
   regsiter,
   login,
-  test,
+  auth
 };
