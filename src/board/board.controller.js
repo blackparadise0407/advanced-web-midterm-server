@@ -116,6 +116,19 @@ const getByCurrentUser = async (req, res, next) => {
   }
 };
 
+const removeActions = async (req, res, next) => {
+  const { user, params: { id }, body } = req;
+  const { field, name } = body
+  try {
+    const board = await Board.updateOne({ _id: id }, { $pull: { [field]: { name } } });
+    if (!board) throw res.status(404).json({ message: 'Board not found' })
+    console.log(board);
+    return res.status(200).json({ message: 'Delete action success', data: await Board.findById(id) })
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   listAll,
   getByID,
@@ -124,4 +137,5 @@ module.exports = {
   remove,
   addActions,
   getByCurrentUser,
+  removeActions
 };

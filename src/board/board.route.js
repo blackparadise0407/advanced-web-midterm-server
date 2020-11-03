@@ -4,6 +4,7 @@ const { auth } = require("../services/auth");
 
 router.get("/", auth, BoardCtrl.getByCurrentUser);
 router.post("/:id/action", auth, BoardCtrl.addActions);
+router.post("/:id/remove-action", auth, BoardCtrl.removeActions);
 router.get("/:id", auth, BoardCtrl.getByID);
 router.post("/", auth, BoardCtrl.add);
 router.post("/:id", auth, BoardCtrl.update);
