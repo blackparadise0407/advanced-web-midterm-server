@@ -1,11 +1,12 @@
 const router = require("express").Router();
 const BoardCtrl = require("./board.controller");
+const { auth } = require("../services/auth");
 
-router.get("/", BoardCtrl.listAll);
-router.post("/:id/action", BoardCtrl.addActions);
-router.get("/:id", BoardCtrl.getByID);
-router.post("/", BoardCtrl.add);
-router.post("/:id", BoardCtrl.update);
-router.delete("/:id", BoardCtrl.remove);
+router.get("/", auth, BoardCtrl.getByCurrentUser);
+router.post("/:id/action", auth, BoardCtrl.addActions);
+router.get("/:id", auth, BoardCtrl.getByID);
+router.post("/", auth, BoardCtrl.add);
+router.post("/:id", auth, BoardCtrl.update);
+router.delete("/:id", auth, BoardCtrl.remove);
 
 module.exports = router;
