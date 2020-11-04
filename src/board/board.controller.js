@@ -55,7 +55,15 @@ const update = async (req, res, next) => {
   try {
     const board = await Board.findById(id);
     if (!board) throw res.status(404).json({ message: "Board not found" });
-    board.set(utils.filterParams(body, ["_id", "createdBy"]));
+    board.set(
+      utils.filterParams(body, [
+        "_id",
+        "createdBy",
+        "toImprove",
+        "wentWell",
+        "actionsItem",
+      ])
+    );
     await board.save();
     return res
       .status(200)
@@ -117,17 +125,26 @@ const getByCurrentUser = async (req, res, next) => {
 };
 
 const removeActions = async (req, res, next) => {
-  const { user, params: { id }, body } = req;
-  const { field, name } = body
+  const {
+    user,
+    params: { id },
+    body,
+  } = req;
+  const { field, actionId } = body;
   try {
-    const board = await Board.updateOne({ _id: id }, { $pull: { [field]: { name } } });
-    if (!board) throw res.status(404).json({ message: 'Board not found' })
-    console.log(board);
-    return res.status(200).json({ message: 'Delete action success', data: await Board.findById(id) })
+    const board = await Board.updateOne(
+      { _id: id },
+      { $pull: { [field]: { _id: actionId } } }
+    );
+    if (!board) throw res.status(404).json({ message: "Board not found" });
+    return res.status(200).json({
+      message: "Delete action success",
+      data: await Board.findById(id),
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 module.exports = {
   listAll,
@@ -137,5 +154,5 @@ module.exports = {
   remove,
   addActions,
   getByCurrentUser,
-  removeActions
+  removeActions,
 };

@@ -5,13 +5,13 @@ const { registerValSchem, loginValSchem } = require("../validation");
 
 const auth = async (req, res, next) => {
   try {
-    const user = await userModel.findById(req.user._id).select('-password')
+    const user = await userModel.findById(req.user._id).select("-password");
     if (!user) throw res.status(404).json({ message: "User does not exists" });
     return res.status(200).json({ message: "Load user success", data: user });
   } catch (error) {
     next(error);
   }
-}
+};
 
 const login = async ({ body }, res, next) => {
   const { email, password } = body;
@@ -42,7 +42,7 @@ const regsiter = async ({ body }, res, next) => {
     if (error)
       throw res.status(400).json({ message: error.details[0].message });
     if (user) {
-      throw res.status(200).json({ message: "User email already exists" });
+      throw res.status(400).json({ message: "User email already exists" });
     }
     const hashedPass = await utils.genHashed(password);
     const newUser = new User({
@@ -60,5 +60,5 @@ const regsiter = async ({ body }, res, next) => {
 module.exports = {
   regsiter,
   login,
-  auth
+  auth,
 };
