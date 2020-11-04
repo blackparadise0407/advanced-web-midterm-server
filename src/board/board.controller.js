@@ -146,6 +146,43 @@ const removeActions = async (req, res, next) => {
   }
 };
 
+const editAction = async (req, res, next) => {
+  const {
+    user,
+    params: { id },
+    body: { _id, name, field },
+  } = req;
+  try {
+    const board = await Board.findById(id)
+    if (!board) throw res.status(404).json({ message: "Board does not exists" })
+    switch (field) {
+      case 'wentWell':
+        await Board.updateOne(
+          { _id: id, 'wentWell._id': _id },
+          { $set: { "wentWell.$.name": name } }
+        )
+        break
+      case 'toImprove':
+        await Board.updateOne(
+          { _id: id, 'toImprove._id': _id },
+          { $set: { "toImprove.$.name": name } }
+        )
+        break
+      case 'actionsItem':
+        await Board.updateOne(
+          { _id: id, 'actionsItem._id': _id },
+          { $set: { "actionsItem.$.name": name } }
+        )
+        break
+      default:
+        break;
+    }
+    return res.status(200).json({ message: 'Update action success', data: await Board.findById(id) })
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   listAll,
   getByID,
@@ -155,4 +192,5 @@ module.exports = {
   addActions,
   getByCurrentUser,
   removeActions,
+  editAction
 };

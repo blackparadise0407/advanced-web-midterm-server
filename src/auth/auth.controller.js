@@ -3,6 +3,7 @@ const User = require("../user/user.model");
 const utils = require("../utils");
 const { registerValSchem, loginValSchem } = require("../validation");
 
+
 const auth = async (req, res, next) => {
   try {
     const user = await userModel.findById(req.user._id).select("-password");
@@ -57,8 +58,25 @@ const regsiter = async ({ body }, res, next) => {
   }
 };
 
+const changeInfo = async (req, res, next) => {
+  const { body, user } = req
+  try {
+    const userData = await User.findById(user._id)
+    if (!userData) throw res.status(404).json({ message: "User not found" });
+    if (!await utils.compareHashed(body.password, userData.password)) {
+      throw res.status(400).json({ message: "Confirm password does not match" });
+    }
+    userData.set(utils.filterParams(body, ['email', 'password']))
+    await userData.save()
+    const data = await User.findById(userData._id).select('-password')
+    return res.status(200).json({ message: "Update profile success", data });
+  } catch (error) {
+    next(error)
+  }
+}
 module.exports = {
   regsiter,
   login,
   auth,
+  changeInfo
 };
