@@ -13,6 +13,7 @@ module.exports.auth = (req, res, next) => {
       .json({ message: "Unauthorized, no token provided" });
   try {
     const decoded = utils.verifyToken(token[1]);
+    console.log(decoded);
     req.user = decoded;
     next();
   } catch (error) {

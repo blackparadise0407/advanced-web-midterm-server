@@ -63,8 +63,10 @@ const changeInfo = async (req, res, next) => {
   try {
     const userData = await User.findById(user._id)
     if (!userData) throw res.status(404).json({ message: "User not found" });
-    if (!await utils.compareHashed(body.password, userData.password)) {
-      throw res.status(400).json({ message: "Confirm password does not match" });
+    if (userData.password) {
+      if (!await utils.compareHashed(body.password, userData.password)) {
+        throw res.status(400).json({ message: "Confirm password does not match" });
+      }
     }
     userData.set(utils.filterParams(body, ['email', 'password']))
     await userData.save()
@@ -74,9 +76,51 @@ const changeInfo = async (req, res, next) => {
     next(error)
   }
 }
+
+const googleSignIn = async (req, res, next) => {
+  const { body: { googleId, name, email } } = req
+  try {
+    const user = await userModel.findOne({ googleId })
+    if (!user) {
+      const newUser = await userModel.create({
+        username: name,
+        email,
+        googleId,
+      })
+      const token = utils.genToken({ _id: newUser._id })
+      return res.status(200).json({ message: 'Sign in success', data: token })
+    }
+    const token = utils.genToken({ _id: user._id })
+    return res.status(200).json({ message: "Sign in success", data: token })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const facebookSignIn = async (req, res, next) => {
+  const { body: { id: facebookId, name } } = req
+  try {
+    const user = await userModel.findOne({ facebookId })
+    if (!user) {
+      const newUser = await userModel.create({
+        username: name,
+        facebookId,
+      })
+      const token = utils.genToken({ _id: newUser._id })
+      return res.status(200).json({ message: 'Sign in success', data: token })
+    }
+    const token = utils.genToken({ _id: user._id })
+    return res.status(200).json({ message: "Sign in success", data: token })
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   regsiter,
   login,
   auth,
-  changeInfo
+  changeInfo,
+  googleSignIn,
+  facebookSignIn
 };
