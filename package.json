@@ -18,7 +18,8 @@
     "lodash": "^4.17.20",
     "mongoose": "^5.10.11",
     "mongoose-autopopulate": "^0.12.2",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "pusher": "^4.0.1"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",

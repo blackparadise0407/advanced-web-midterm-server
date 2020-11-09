@@ -1,3 +1,4 @@
+const pusher = require("../services/pusher");
 const utils = require("../utils");
 const Board = require("./board.model");
 
@@ -57,6 +58,10 @@ const update = async (req, res, next) => {
     if (!board) throw res.status(404).json({ message: "Board not found" });
     board.set(utils.filterParams(body, ["_id", "createdBy"]));
     await board.save();
+    pusher.trigger(`${board._id}`, 'update', {
+      message: "Pusher triggered",
+      data: board
+    })
     return res
       .status(200)
       .json({ message: "Update board success", data: board });
@@ -93,14 +98,18 @@ const addActions = async (req, res, next) => {
       {
         $push: { [field]: newAction },
       },
-      { upsert: true }
+      { upsert: true, new: true }
     );
     if (!board) {
       throw res.status(404).json({ message: "Board not found" });
     }
+    pusher.trigger(`${board._id}`, 'update', {
+      message: "Pusher triggered",
+      data: board
+    })
     return res
       .status(200)
-      .json({ message: "Add action success", data: await Board.findById(id) });
+      .json({ message: "Add action success", data: board });
   } catch (error) {
     next(error);
   }
@@ -124,14 +133,19 @@ const removeActions = async (req, res, next) => {
   } = req;
   const { field, actionId } = body;
   try {
-    const board = await Board.updateOne(
-      { _id: id },
-      { $pull: { [field]: { _id: actionId } } }
+    const board = await Board.findByIdAndUpdate(
+      id,
+      { $pull: { [field]: { _id: actionId } } },
+      { new: true }
     );
     if (!board) throw res.status(404).json({ message: "Board not found" });
+    pusher.trigger(`${board._id}`, 'update', {
+      message: "Pusher triggered",
+      data: board
+    })
     return res.status(200).json({
       message: "Delete action success",
-      data: await Board.findById(id),
+      data: board,
     });
   } catch (error) {
     next(error);
@@ -170,11 +184,16 @@ const editAction = async (req, res, next) => {
       default:
         break;
     }
+    const updateBoard = await Board.findById(id)
+    pusher.trigger(`${updateBoard._id}`, 'update', {
+      message: "Pusher triggered",
+      data: updateBoard
+    })
     return res
       .status(200)
       .json({
         message: "Update action success",
-        data: await Board.findById(id),
+        data: updateBoard,
       });
   } catch (error) {
     next(error);
