@@ -55,15 +55,7 @@ const update = async (req, res, next) => {
   try {
     const board = await Board.findById(id);
     if (!board) throw res.status(404).json({ message: "Board not found" });
-    board.set(
-      utils.filterParams(body, [
-        "_id",
-        "createdBy",
-        "toImprove",
-        "wentWell",
-        "actionsItem",
-      ])
-    );
+    board.set(utils.filterParams(body, ["_id", "createdBy"]));
     await board.save();
     return res
       .status(200)
@@ -153,35 +145,41 @@ const editAction = async (req, res, next) => {
     body: { _id, name, field },
   } = req;
   try {
-    const board = await Board.findById(id)
-    if (!board) throw res.status(404).json({ message: "Board does not exists" })
+    const board = await Board.findById(id);
+    if (!board)
+      throw res.status(404).json({ message: "Board does not exists" });
     switch (field) {
-      case 'wentWell':
+      case "wentWell":
         await Board.updateOne(
-          { _id: id, 'wentWell._id': _id },
+          { _id: id, "wentWell._id": _id },
           { $set: { "wentWell.$.name": name } }
-        )
-        break
-      case 'toImprove':
+        );
+        break;
+      case "toImprove":
         await Board.updateOne(
-          { _id: id, 'toImprove._id': _id },
+          { _id: id, "toImprove._id": _id },
           { $set: { "toImprove.$.name": name } }
-        )
-        break
-      case 'actionsItem':
+        );
+        break;
+      case "actionsItem":
         await Board.updateOne(
-          { _id: id, 'actionsItem._id': _id },
+          { _id: id, "actionsItem._id": _id },
           { $set: { "actionsItem.$.name": name } }
-        )
-        break
+        );
+        break;
       default:
         break;
     }
-    return res.status(200).json({ message: 'Update action success', data: await Board.findById(id) })
+    return res
+      .status(200)
+      .json({
+        message: "Update action success",
+        data: await Board.findById(id),
+      });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 module.exports = {
   listAll,
@@ -192,5 +190,5 @@ module.exports = {
   addActions,
   getByCurrentUser,
   removeActions,
-  editAction
+  editAction,
 };
